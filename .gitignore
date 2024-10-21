@@ -1,4 +1,5 @@
 *.ckpt
+*.sh
 .vscode
 example_demo_session
 data
