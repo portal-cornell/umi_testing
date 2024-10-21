@@ -1,3 +1,4 @@
+*.ckpt
 .vscode
 example_demo_session
 data
