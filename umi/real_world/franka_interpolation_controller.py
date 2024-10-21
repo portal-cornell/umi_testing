@@ -34,7 +34,7 @@ tx_flange_tip = tx_flange_flangerot45 @ tx_flangerot45_flangerot90 @tx_flangerot
 tx_tip_flange = np.linalg.inv(tx_flange_tip)
 
 class FrankaInterface:
-    def __init__(self, ip='172.16.0.3', port=4242):
+    def __init__(self, ip='192.168.0.136', port=4242):
         self.server = zerorpc.Client(heartbeat=20)
         self.server.connect(f"tcp://{ip}:{port}")
 

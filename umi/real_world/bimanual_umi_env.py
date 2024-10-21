@@ -291,10 +291,15 @@ class BimanualUmiEnv:
     # ======== start-stop API =============
     @property
     def is_ready(self):
+        print(self.camera.is_ready)
         ready_flag = self.camera.is_ready
+        print("---------------------")
         for robot in self.robots:
+            print(robot.is_ready)
             ready_flag = ready_flag and robot.is_ready
+        print("---------------------")
         for gripper in self.grippers:
+            print(gripper.is_ready)
             ready_flag = ready_flag and gripper.is_ready
         return ready_flag
     

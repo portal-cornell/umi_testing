@@ -26,6 +26,7 @@ from umi.common.precise_sleep import precise_wait
 @click.option('-f', '--frequency', type=float, default=30)
 @click.option('-gs', '--gripper_speed', type=float, default=200.0)
 def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_speed):
+    print(robot_hostname)
     max_pos_speed = 0.25
     max_rot_speed = 0.6
     max_gripper_width = 90.
@@ -61,7 +62,9 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
             print('Ready!')
             # to account for recever interfance latency, use target pose
             # to init buffer.
+            breakpoint()
             state = controller.get_state()
+            print("hi")
             target_pose = state['TargetTCPPose']
             gripper_target_pos = gripper.get_state()['gripper_position']
             t_start = time.monotonic()

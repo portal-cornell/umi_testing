@@ -24,12 +24,13 @@ from umi.real_world.franka_interpolation_controller import FrankaInterpolationCo
 
 # %%
 @click.command()
-@click.option('-rh', '--robot_hostname', default='172.16.0.3')
-@click.option('-gh', '--gripper_hostname', default='172.24.95.27')
+@click.option('-rh', '--robot_hostname', default='192.168.0.136')
+@click.option('-gh', '--gripper_hostname', default='192.168.1.90')
 @click.option('-gp', '--gripper_port', type=int, default=1000)
 @click.option('-f', '--frequency', type=float, default=30)
 @click.option('-gs', '--gripper_speed', type=float, default=200.0)
 def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_speed):
+    print(robot_hostname)
     max_pos_speed = 0.25
     max_rot_speed = 0.6
     max_gripper_width = 90.
@@ -67,14 +68,14 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
             # target_pose = state['TargetTCPPose']
             target_pose = state['ActualTCPPose']
 
-            # print(target_pose)
+            print(target_pose)
             # exit()
         
             # target_pose = np.array([ 0.40328411,  0.00620825,  0.29310859, -2.26569407,  2.12426248, -0.00934497])
             # controller.servoL(target_pose, 5)
             # time.sleep(8)
             # exit()
-        
+
             gripper_target_pos = gripper.get_state()['gripper_position']
             t_start = time.monotonic()
             gripper.restart_put(t_start-time.monotonic() + time.time())
@@ -91,6 +92,7 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
 
                 # handle key presses
                 press_events = key_counter.get_press_events()
+                print(press_events)
                 for key_stroke in press_events:
                     # if key_stroke != None:
                     #     print(key_stroke)
@@ -98,6 +100,7 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
                         stop = True
                 precise_wait(t_sample)
                 sm_state = sm.get_motion_state_transformed()
+                print(sm_state)
                 # print(sm_state)
                 dpos = sm_state[:3] * (max_pos_speed / frequency)
                 drot_xyz = sm_state[3:] * (max_rot_speed / frequency)
