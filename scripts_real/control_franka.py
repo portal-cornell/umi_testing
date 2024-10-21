@@ -92,7 +92,6 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
 
                 # handle key presses
                 press_events = key_counter.get_press_events()
-                print(press_events)
                 for key_stroke in press_events:
                     # if key_stroke != None:
                     #     print(key_stroke)
@@ -101,7 +100,6 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
                 precise_wait(t_sample)
                 sm_state = sm.get_motion_state_transformed()
                 print(sm_state)
-                # print(sm_state)
                 dpos = sm_state[:3] * (max_pos_speed / frequency)
                 drot_xyz = sm_state[3:] * (max_rot_speed / frequency)
 
