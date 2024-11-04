@@ -34,10 +34,12 @@ tx_flange_tip = tx_flange_flangerot45 @ tx_flangerot45_flangerot90 @tx_flangerot
 tx_tip_flange = np.linalg.inv(tx_flange_tip)
 
 class FrankaInterface:
-    def __init__(self, ip='192.168.0.136', port=4242):
+    def __init__(self, ip='192.168.1.90', port=4242):
+        print("FRANKAINTERFACE CALS")
+        print(ip)
         self.server = zerorpc.Client(heartbeat=20)
         self.server.connect(f"tcp://{ip}:{port}")
-
+        print("end")
     def get_ee_pose(self):
         flange_pose = np.array(self.server.get_ee_pose())
         tip_pose = mat_to_pose(pose_to_mat(flange_pose) @ tx_flange_tip)
@@ -84,7 +86,7 @@ class FrankaInterpolationController(mp.Process):
         joints_init=None,
         joints_init_duration=None,
         soft_real_time=False,
-        verbose=False,
+        verbose=True,
         get_max_k=None,
         receive_latency=0.0
         ):
@@ -103,6 +105,7 @@ class FrankaInterpolationController(mp.Process):
 
         super().__init__(name="FrankaPositionalController")
         self.robot_ip = robot_ip
+        print(self.robot_ip)
         self.robot_port = robot_port
         self.frequency = frequency
         self.Kx = np.array([750.0, 750.0, 750.0, 15.0, 15.0, 15.0]) * Kx_scale
@@ -157,6 +160,7 @@ class FrankaInterpolationController(mp.Process):
         self.input_queue = input_queue
         self.ring_buffer = ring_buffer
         self.receive_keys = receive_keys
+        print("End of FrankaInterpolationController")
             
     # ========= launch method ===========
     def start(self, wait=True):
@@ -238,6 +242,8 @@ class FrankaInterpolationController(mp.Process):
         if self.soft_real_time:
             os.sched_setscheduler(
                 0, os.SCHED_RR, os.sched_param(20))
+            
+        print("before running polymetis interface")
             
         # start polymetis interface
         robot = FrankaInterface(self.robot_ip, self.robot_port)

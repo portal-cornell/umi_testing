@@ -75,7 +75,7 @@ class TimmObsEncoder(ModuleAttrMixin):
         Assumes low_dim input: B,T,D
         """
         super().__init__()
-        
+        print("in timms obs encoder constructor")
         rgb_keys = list()
         low_dim_keys = list()
         key_model_map = nn.ModuleDict()
@@ -253,6 +253,7 @@ class TimmObsEncoder(ModuleAttrMixin):
             return feature
         
     def forward(self, obs_dict):
+        print("obs_dict keys in forward", obs_dict.keys())
         features = list()
         batch_size = next(iter(obs_dict.values())).shape[0]
         
@@ -270,9 +271,15 @@ class TimmObsEncoder(ModuleAttrMixin):
             features.append(feature.reshape(B, -1))
 
         # process lowdim input
+        print("processing lowdim input")
         for key in self.low_dim_keys:
+            # todo: delete
+            # if key == 'robot0_eef_pos': continue
+            print(key)
             data = obs_dict[key]
+            print(data)
             B, T = data.shape[:2]
+            print(B, T)
             assert B == batch_size
             assert data.shape[2:] == self.key_shape_map[key]
             features.append(data.reshape(B, -1))

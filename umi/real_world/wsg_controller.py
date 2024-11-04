@@ -33,6 +33,8 @@ class WSGController(mp.Process):
             ):
         super().__init__(name="WSGController")
         self.hostname = hostname
+        print("WSG")
+        print(self.hostname)
         self.port = port
         self.frequency = frequency
         self.home_to_open = home_to_open
@@ -67,6 +69,7 @@ class WSGController(mp.Process):
             'gripper_receive_timestamp': time.time(),
             'gripper_timestamp': time.time()
         }
+        print("examples", example)
         ring_buffer = SharedMemoryRingBuffer.create_from_examples(
             shm_manager=shm_manager,
             examples=example,
@@ -144,6 +147,8 @@ class WSGController(mp.Process):
     def run(self):
         # start connection
         try:
+            print("wsg hostname", self.hostname)
+            print("wsg port", self.port)
             with WSGBinaryDriver(
                 hostname=self.hostname, 
                 port=self.port) as wsg:

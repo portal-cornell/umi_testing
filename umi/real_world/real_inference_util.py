@@ -66,11 +66,18 @@ def get_real_umi_obs_dict(
         tx_robot1_robot0: np.ndarray=None,
         episode_start_pose: List[np.ndarray]=None,
         ) -> Dict[str, np.ndarray]:
+    print("entered real_umi_obs_dict")
     obs_dict_np = dict()
     # process non-pose
     obs_shape_meta = shape_meta['obs']
+    print("obs_shape_meta keys", obs_shape_meta.keys())
     robot_prefix_map = collections.defaultdict(list)
     for key, attr in obs_shape_meta.items():
+        # TODO DELETE
+        if key == 'robot0_gripper_width': continue
+
+        print("key", key)
+        print("attr value", attr)
         type = attr.get('type', 'low_dim')
         shape = attr.get('shape')
         if type == 'rgb':
@@ -90,12 +97,17 @@ def get_real_umi_obs_dict(
             # THWC to TCHW
             obs_dict_np[key] = np.moveaxis(out_imgs,-1,1)
         elif type == 'low_dim' and ('eef' not in key):
+
             this_data_in = env_obs[key]
             obs_dict_np[key] = this_data_in
             # handle multi-robots
             ks = key.split('_')
             if ks[0].startswith('robot'):
                 robot_prefix_map[ks[0]].append(key)
+
+    print("before generate relative pose")
+    print("obs_dict_np keys", obs_dict_np.keys())
+    print("robot_prefix_map keys", robot_prefix_map.keys())
 
     # generate relative pose
     for robot_prefix in robot_prefix_map.keys():
@@ -116,6 +128,7 @@ def get_real_umi_obs_dict(
         obs_dict_np[robot_prefix + '_eef_pos'] = obs_pose[...,:3]
         obs_dict_np[robot_prefix + '_eef_rot_axis_angle'] = obs_pose[...,3:]
     
+    print("before generate pose relative to another robot")
     # generate pose relative to other robot
     n_robots = len(robot_prefix_map)
     for robot_id in range(n_robots):
@@ -168,6 +181,7 @@ def get_real_umi_obs_dict(
             # obs_dict_np[f'robot{robot_id}_eef_pos_wrt_start'] = rel_obs_pose[:,:3]
             obs_dict_np[f'robot{robot_id}_eef_rot_axis_angle_wrt_start'] = rel_obs_pose[:,3:]
 
+    print("obs_dict_np keys", obs_dict_np.keys())
     return obs_dict_np
 
 def get_real_umi_action(

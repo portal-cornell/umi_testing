@@ -29,7 +29,9 @@ class Spacemouse(mp.Process):
         *----->x right
         y
         """
+        print("AM I in spacemouse")
         super().__init__()
+        print("AM I in spacemouse 2")   
         if np.issubdtype(type(deadzone), np.number):
             deadzone = np.full(6, fill_value=deadzone, dtype=dtype)
         else:
@@ -108,9 +110,12 @@ class Spacemouse(mp.Process):
     #========== start stop API ===========
 
     def start(self, wait=True):
+        print("in starrt, wait = ", wait)
         super().start()
         if wait:
+            print("waiting for ready event")
             self.ready_event.wait()
+            print("ready event received")
     
     def stop(self, wait=True):
         self.stop_event.set()

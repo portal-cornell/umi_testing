@@ -142,7 +142,6 @@ def main(input, output, robot_config,
     
     robots_config = robot_config_data['robots']
     grippers_config = robot_config_data['grippers']
-
     # load checkpoint
     ckpt_path = input
     if not ckpt_path.endswith('.ckpt'):
@@ -195,6 +194,7 @@ def main(input, output, robot_config,
                 max_pos_speed=2.0,
                 max_rot_speed=6.0,
                 shm_manager=shm_manager) as env:
+            print("above cv2 num threads")
             cv2.setNumThreads(2)
             print("Waiting for camera")
             time.sleep(1.0)
@@ -224,10 +224,13 @@ def main(input, output, robot_config,
             # creating model
             # have to be done after fork to prevent 
             # duplicating CUDA context with ffmpeg nvenc
+            print("before hydra utils")
             cls = hydra.utils.get_class(cfg._target_)
             workspace = cls(cfg)
             workspace: BaseWorkspace
+            print("after base workspace")
             workspace.load_payload(payload, exclude_keys=None, include_keys=None)
+            print("after load payload")
 
             policy = workspace.model
             if cfg.training.use_ema:
@@ -244,6 +247,7 @@ def main(input, output, robot_config,
 
             print("Warming up policy inference")
             obs = env.get_obs()
+            print("obs in eval_real keys", obs.keys())
             episode_start_pose = list()
             for robot_id in range(len(robots_config)):
                 pose = np.concatenate([
@@ -251,21 +255,29 @@ def main(input, output, robot_config,
                     obs[f'robot{robot_id}_eef_rot_axis_angle']
                 ], axis=-1)[-1]
                 episode_start_pose.append(pose)
+            print("before torch.no_grad()")
             with torch.no_grad():
                 policy.reset()
+                print("after policy reset")
                 obs_dict_np = get_real_umi_obs_dict(
                     env_obs=obs, shape_meta=cfg.task.shape_meta, 
                     obs_pose_repr=obs_pose_rep,
                     tx_robot1_robot0=tx_robot1_robot0,
                     episode_start_pose=episode_start_pose)
+                print("after obs_dict_np")
                 obs_dict = dict_apply(obs_dict_np, 
                     lambda x: torch.from_numpy(x).unsqueeze(0).to(device))
+                print("before policy predict action")
+                print("policy type", type(policy))
+                breakpoint()
                 result = policy.predict_action(obs_dict)
+                print("after policy predict action")
                 action = result['action_pred'][0].detach().to('cpu').numpy()
                 assert action.shape[-1] == 10 * len(robots_config)
                 action = get_real_umi_action(action, obs, action_pose_repr)
                 assert action.shape[-1] == 7 * len(robots_config)
                 del result
+                print("reached end of one iteration of torch.no_grad()")
 
             print('Ready!')
             while True:

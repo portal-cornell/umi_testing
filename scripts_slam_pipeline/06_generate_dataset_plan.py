@@ -590,6 +590,8 @@ def main(input, output, tcp_offset, tx_slam_tag,
 
             # load SLAM data
             csv_path = video_dir.joinpath('camera_trajectory.csv')
+            print(video_dir)
+            print(csv_path)
             if not csv_path.is_file():
                 print(f"Skipping {video_dir.name}, no camera_trajectory.csv.")
                 dropped_camera_count[row['camera_serial']] += 1

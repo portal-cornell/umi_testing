@@ -8,6 +8,7 @@ class KeystrokeCounter(Listener):
         self.key_press_list = list()
         self.lock = Lock()
         super().__init__(on_press=self.on_press, on_release=self.on_release)
+        print("end of keystroke")
     
     def on_press(self, key):
         with self.lock:

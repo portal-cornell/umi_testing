@@ -74,14 +74,20 @@ class BaseWorkspace:
         return pathlib.Path(self.output_dir).joinpath('checkpoints', f'{tag}.ckpt')
 
     def load_payload(self, payload, exclude_keys=None, include_keys=None, **kwargs):
+        print("entered load payload")
         if exclude_keys is None:
             exclude_keys = tuple()
         if include_keys is None:
             include_keys = payload['pickles'].keys()
 
+        print("entering load_payload first for loop")
         for key, value in payload['state_dicts'].items():
+            print("key", key)
+            print("exclude_keys", exclude_keys)
             if key not in exclude_keys:
+                print( self.__dict__[key])
                 self.__dict__[key].load_state_dict(value, **kwargs)
+        print("exited load_payload for loop first")
         for key in include_keys:
             if key in payload['pickles']:
                 self.__dict__[key] = dill.loads(payload['pickles'][key])

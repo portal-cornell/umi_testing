@@ -205,6 +205,7 @@ class WSGBinaryDriver:
     # ============== mid level API ================
 
     def act(self, cmd: CommandId, *args, wait=True, ignore_other=False):
+        print("in act")
         msg = self.cmd_submit(
             cmd_id=cmd.value,
             payload=args_to_bytes(*args),

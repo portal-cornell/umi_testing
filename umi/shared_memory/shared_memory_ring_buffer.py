@@ -159,12 +159,14 @@ class SharedMemoryRingBuffer:
 
     def _allocate_empty(self, k=None):
         result = dict()
+        print("array_specs", self.array_specs)
         for spec in self.array_specs:
             shape = spec.shape
             if k is not None:
                 shape = (k,) + shape
             result[spec.name] = np.empty(
                 shape=shape, dtype=spec.dtype)
+        print("result", result)
         return result
 
     def get(self, out=None) -> Dict[str, np.ndarray]:
@@ -184,12 +186,15 @@ class SharedMemoryRingBuffer:
     
     def get_last_k(self, k:int, out=None) -> Dict[str, np.ndarray]:
         assert k <= self.get_max_k
+        print("out before", out)
         if out is None:
             out = self._allocate_empty(k)
+        print("out", out)
         start_time = time.monotonic()
         count = self.counter.load()
-        assert k <= count
+        assert k <= count 
         curr_idx = (count - 1) % self.buffer_size
+        print("before entering loop",self.shared_arrays)
         for key, value in self.shared_arrays.items():
             arr = value.get()
             target = out[key]
@@ -208,6 +213,7 @@ class SharedMemoryRingBuffer:
                 target_start = 0
                 target_end = end - start
                 target[target_start: target_end] = arr[start:end]
+        print("after loop hello")
         end_time = time.monotonic()
         dt = end_time - start_time
         if dt > self.get_time_budget:
@@ -215,5 +221,9 @@ class SharedMemoryRingBuffer:
         return out
 
     def get_all(self) -> Dict[str, np.ndarray]:
+
+        print("count", self.count)
+        print("get_max_k", self.get_max_k)
         k = min(self.count, self.get_max_k)
+        print("k = ", k)
         return self.get_last_k(k=k)

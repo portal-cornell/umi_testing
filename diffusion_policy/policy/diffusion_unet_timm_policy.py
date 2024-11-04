@@ -47,6 +47,9 @@ class DiffusionUnetTimmPolicy(BaseImagePolicy):
         assert obs_as_global_cond
         input_dim = action_dim
         global_cond_dim = obs_feature_dim
+        print("Model input dim:", input_dim)
+        print("Global condition dim:", global_cond_dim)
+        print("Down dimensions:", down_dims)
 
         model = ConditionalUnet1D(
             input_dim=input_dim,
@@ -58,7 +61,7 @@ class DiffusionUnetTimmPolicy(BaseImagePolicy):
             n_groups=n_groups,
             cond_predict_scale=cond_predict_scale
         )
-
+        print("here")
         self.obs_encoder = obs_encoder
         self.model = model
         self.noise_scheduler = noise_scheduler
@@ -127,12 +130,17 @@ class DiffusionUnetTimmPolicy(BaseImagePolicy):
         """
         assert 'past_action' not in obs_dict # not implemented yet
         # normalize input
+        print("obs_dict in predict action:", obs_dict.keys())
+        print("in predict action")
         nobs = self.normalizer.normalize(obs_dict)
+
         B = next(iter(nobs.values())).shape[0]
+        print("before obs_encoder")
 
         # condition through global feature
         global_cond = self.obs_encoder(nobs)
 
+        print("before cond data")
         # empty data for action
         cond_data = torch.zeros(size=(B, self.action_horizon, self.action_dim), device=self.device, dtype=self.dtype)
         cond_mask = torch.zeros_like(cond_data, dtype=torch.bool)

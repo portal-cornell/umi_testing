@@ -39,7 +39,6 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
     # tcp_offset = 0
     dt = 1/frequency
     command_latency = dt / 2
-
     with SharedMemoryManager() as shm_manager:
         with WSGController(
             shm_manager=shm_manager,
@@ -68,7 +67,7 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
             # target_pose = state['TargetTCPPose']
             target_pose = state['ActualTCPPose']
 
-            print(target_pose)
+            print(state)
             # exit()
         
             # target_pose = np.array([ 0.40328411,  0.00620825,  0.29310859, -2.26569407,  2.12426248, -0.00934497])
@@ -91,6 +90,7 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
                 t_command_target = t_cycle_end + dt
 
                 # handle key presses
+                # print("hiu")
                 press_events = key_counter.get_press_events()
                 for key_stroke in press_events:
                     # if key_stroke != None:
@@ -99,7 +99,7 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
                         stop = True
                 precise_wait(t_sample)
                 sm_state = sm.get_motion_state_transformed()
-                print(sm_state)
+                print("SPACE MOUSE S = ", sm_state)
                 dpos = sm_state[:3] * (max_pos_speed / frequency)
                 drot_xyz = sm_state[3:] * (max_rot_speed / frequency)
 
@@ -116,9 +116,10 @@ def main(robot_hostname, gripper_hostname, gripper_port, frequency, gripper_spee
                 if sm.is_button_pressed(1):
                     dpos = gripper_speed / frequency
                 gripper_target_pos = np.clip(gripper_target_pos + dpos, 0, max_gripper_width)
-
-                controller.schedule_waypoint(target_pose, 
-                    t_command_target-time.monotonic()+time.time())
+                print(target_pose)
+                # controller.schedule_waypoint(target_pose, 
+                #     t_command_target-time.monotonic()+time.time())
+                controller.servoL(target_pose)
                 gripper.schedule_waypoint(gripper_target_pos, 
                     t_command_target-time.monotonic()+time.time())
 
